@@ -10,7 +10,19 @@ container that only exposes the MySQL port 3306.
 
 This solution is significantly faster than dumping an SQL file and then importing it.
 
-### Usage
+## Installation
+
+Add the following line to your `bundles.php` file:
+
+```php
+return [
+    ...
+    Headsnet\DoctrineDbCopyBundle\HeadsnetDoctrineDbCopyBundle::class => ['all' => true],
+    ...
+];    
+```
+
+## Usage
 
 To copy `test_1` to `test_2`, simply run:
 
@@ -28,6 +40,6 @@ for (( i = 2; i <= $PARATEST_THREADS; i++ )); do
 done
 ```
 
-### Licence
+## Licence
 
 This code is released under the MIT licence. Please see the LICENSE file for more information.
