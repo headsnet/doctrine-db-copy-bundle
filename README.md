@@ -12,12 +12,18 @@ This solution is significantly faster than dumping an SQL file and then importin
 
 ## Installation
 
-Add the following line to your `bundles.php` file:
+```bash
+composer require --dev headsnet/doctrine-db-copy-bundle
+```
+
+If you use Symfony Flex you don't need to configure anything further. 
+
+Otherwise, add the following line to your `bundles.php` file:
 
 ```php
 return [
     ...
-    Headsnet\DoctrineDbCopyBundle\HeadsnetDoctrineDbCopyBundle::class => ['all' => true],
+    Headsnet\DoctrineDbCopyBundle\HeadsnetDoctrineDbCopyBundle::class => ['dev' => true, 'test' => true],
     ...
 ];    
 ```
