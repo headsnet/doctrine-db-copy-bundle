@@ -33,7 +33,7 @@ return [
 To copy `test_1` to `test_2`, simply run:
 
 ```bash
-bin/console headsnet:copy-db -s test_1 -d test_2;
+bin/console headsnet:copy-db <src-db> <dest-db>
 ```
 
 To create multiple test database copies, you can use a for loop:
@@ -42,7 +42,7 @@ To create multiple test database copies, you can use a for loop:
 PARATEST_THREADS=6
 
 for (( i = 2; i <= $PARATEST_THREADS; i++ )); do
-    bin/console headsnet:copy-db -s test_1 -d test_$i;
+    bin/console headsnet:copy-db test_1 test_$i;
 done
 ```
 

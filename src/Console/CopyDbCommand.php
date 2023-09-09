@@ -8,13 +8,13 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Result;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'headsnet:copy-db',
-    description: 'Copies a database using only SQL commands'
+    description: 'Copies a database using only SQL commands, without requiring e.g. mysqldump'
 )]
 final class CopyDbCommand extends Command
 {
@@ -27,16 +27,14 @@ final class CopyDbCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addOption(
+            ->addArgument(
                 'source',
-                's',
-                InputOption::VALUE_REQUIRED,
+                InputArgument::REQUIRED,
                 'The name of the source database'
             )
-            ->addOption(
+            ->addArgument(
                 'destination',
-                'd',
-                InputOption::VALUE_REQUIRED,
+                InputArgument::REQUIRED,
                 'The name of the destination database'
             )
         ;
@@ -47,8 +45,8 @@ final class CopyDbCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $sourceDb = $input->getOption('source');
-        $destinationDb = $input->getOption('destination');
+        $sourceDb = $input->getArgument('source');
+        $destinationDb = $input->getArgument('destination');
 
         // Create target database
         $this->query(sprintf('DROP DATABASE IF EXISTS %s', $destinationDb));
@@ -60,7 +58,7 @@ final class CopyDbCommand extends Command
         // Load all tables names from source database
         $result = $this->query('SHOW TABLES');
         $tables = $result->fetchAllAssociative();
-        $tables = array_map(fn (array $table): string => $table['Tables_in_' . $sourceDb], $tables);
+        $tables = array_map(fn (array $table): string => current($table), $tables);
 
         // Loop over tables and...
         foreach ($tables as $table)
