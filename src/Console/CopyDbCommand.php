@@ -35,7 +35,7 @@ final class CopyDbCommand extends Command
             ->addArgument(
                 'destination',
                 InputArgument::REQUIRED,
-                'The name of the destination database'
+                'The name of the destination database. For multiple database copies, comma separate the names.'
             )
         ;
     }
@@ -46,8 +46,22 @@ final class CopyDbCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $sourceDb = $input->getArgument('source');
-        $destinationDb = $input->getArgument('destination');
+        $destination = $input->getArgument('destination');
 
+        foreach (explode(',', $destination) as $destDb)
+        {
+            $output->writeln(sprintf('Copying database %s to %s', $sourceDb, $destDb));
+            $this->copyDatabase($destDb, $sourceDb);
+        }
+
+        return Command::SUCCESS;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function copyDatabase(mixed $destinationDb, mixed $sourceDb): void
+    {
         // Create target database
         $this->query(sprintf('DROP DATABASE IF EXISTS %s', $destinationDb));
         $this->query(sprintf('CREATE DATABASE %s', $destinationDb));
@@ -58,11 +72,10 @@ final class CopyDbCommand extends Command
         // Load all tables names from source database
         $result = $this->query('SHOW TABLES');
         $tables = $result->fetchAllAssociative();
-        $tables = array_map(fn (array $table): string => current($table), $tables);
+        $tables = array_map(fn(array $table): string => current($table), $tables);
 
         // Loop over tables and...
-        foreach ($tables as $table)
-        {
+        foreach ($tables as $table) {
             // create tables in the new database
             $this->query(sprintf('CREATE TABLE %s.%s LIKE %s.%s', $destinationDb, $table, $sourceDb, $table));
 
@@ -72,8 +85,6 @@ final class CopyDbCommand extends Command
 
         // Re-enable foreign key checks
         $this->query('SET FOREIGN_KEY_CHECKS = 1');
-
-        return Command::SUCCESS;
     }
 
     /**
